@@ -1,4 +1,18 @@
-var app = angular.module("sportsApp", []);
+var app = angular.module("sportsApp", ["ui.router"]);
+
+app.config([
+  "$stateProvider",
+  "$urlRouterProvider",
+  function($stateProvider, $urlRouterProvider) {
+    $stateProvider
+      .state("home", {
+        url: "/home",
+        templateUrl: "/home.html",
+        controller: "MainController"
+      });
+
+      $urlRouterProvider.otherwise("home");
+  }]);
 
 
 app.factory("posts", [function(){
