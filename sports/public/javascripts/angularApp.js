@@ -8,7 +8,13 @@ app.config([
       .state("home", {
         url: "/home",
         templateUrl: "/home.html",
-        controller: "MainController"
+        controller: "MainController",
+        // Get all the current posts on loading of the home page
+        resolve: {
+          postPromise: ["posts", function(posts) {
+            return posts.getAll();
+          }]
+        }
       })
       .state("posts", {
         url: "/posts/{id}",
@@ -20,10 +26,28 @@ app.config([
   }]);
 
 
-app.factory("posts", [function(){
+app.factory("posts", ["$http", function($http){
   // Create an object with an array of posts
   var o = {
     posts: []
+  };
+  // Wiring up of our backend posts we've made to our frontend home page
+  o.getAll = function() {
+    return $http.get("/posts").success(function(data) {
+      angular.copy(data, o.posts);
+    });
+  }
+  // Save new posts to make them persistent with a post function
+  o.create = function(post) {
+    return $http.post("/posts", post).success(function(data) {
+      o.posts.push(data);
+    });
+  };
+
+  o.upvote = function(post) {
+    return $http.put("/posts/" + post._id + "/upvote").success(function(data) {
+      post.upvotes += 1;
+    });
   };
   return o;
 }]);
@@ -40,24 +64,19 @@ app.controller("MainController", [
     $scope.addPost = function(){
       // This prevents the user from adding a blank entry
       if(!$scope.title || $scope.title === "") {return;}
-      $scope.posts.push({
+      posts.create({
         title: $scope.title,
         link: $scope.link,
-        upvotes: 0,
-        comments: [
-          {author: "testUser", body: "test body!", upvotes: 1}
-        ]
       });
       $scope.title="";
       $scope.link="";
     };
 
     $scope.addUpvote = function(post){
-      post.upvotes += 1;
+      posts.upvote(post);
     };
 
-  }
-]);
+  }]);
 
 app.controller("PostsController", [
   "$scope",
