@@ -10,21 +10,25 @@
   </head>
 
   <body>
-    <body ng-app="sportsApp" ng-controller="MainController">
+    <body ng-app="sportsApp">
       <div class="row">
         <div class="col-md-6 col-md-offset-3">
           <ui-view></ui-view>
         </div>
       </div>
 
-
       <script type="text/ng-template" id="/home.html">
         <div class="page-header">
-          <h1>Sports App</h1>
+          <h1>Sports! by Cassidy</h1>
         </div>
 
         <div ng-repeat="post in posts | orderBy: '-upvotes'">
           <span class="glyphicon glyphicon-thumbs-up" ng-click="addUpvote(post)"></span>
+
+          // Make this look sexier later
+          <span>
+          <a href="#/posts/{{ $index }}">Comments</a>
+          </span>
 
           <a ng-show="post.link" href="{{ post.link }}">
           {{ post.title }}
@@ -46,6 +50,34 @@
           <button type="submit" class="btn btn-primary">Post</button>
         </form>
         </div>
+      </script>
+
+      <script type="text/ng-template" id="/posts.html">
+        <div class="page-header">
+          <h2>
+            <a ng-show="post.link" href="{{ post.link }}">
+              {{ post.title }}
+            </a>
+            <span ng-hide="post.link">
+              {{ post.title }}
+            </span>
+          </h2>
+        </div>
+
+        <div ng-repeat="comment in post.comments | orderBy: '-upvotes'">
+          <span class="glyphicon glyphicon-thumbs-up" ng-click="addUpvote(comment)"></span>
+          {{ comment.upvotes }} - by {{ comment.author }}
+          <span> {{ comment.body }} </span>
+        </div>
+
+        <form ng-submit="addComment()">
+          <h3>Add a new comment</h3>
+
+          <div class="form-group">
+            <input type="text" class="form-control" placeholder="Comment" ng-model="body"></input>
+          </div>
+          <button type="submit" class="btn btn-primary">Post</button>
+        </form>
       </script>
   </body>
 </html>

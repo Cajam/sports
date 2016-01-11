@@ -9,6 +9,11 @@ app.config([
         url: "/home",
         templateUrl: "/home.html",
         controller: "MainController"
+      })
+      .state("posts", {
+        url: "/posts/{id}",
+        templateUrl: "/posts.html",
+        controller: "PostsController"
       });
 
       $urlRouterProvider.otherwise("home");
@@ -38,7 +43,10 @@ app.controller("MainController", [
       $scope.posts.push({
         title: $scope.title,
         link: $scope.link,
-        upvotes: 0
+        upvotes: 0,
+        comments: [
+          {author: "testUser", body: "test body!", upvotes: 1}
+        ]
       });
       $scope.title="";
       $scope.link="";
@@ -50,3 +58,20 @@ app.controller("MainController", [
 
   }
 ]);
+
+app.controller("PostsController", [
+  "$scope",
+  "$stateParams",
+  "posts",
+  function($scope, $stateParams, posts){
+    $scope.post = posts.posts[$stateParams.id];
+    $scope.addComment = function(){
+      if($scope.body === "") {return;}
+      $scope.post.comments.push({
+        body: $scope.body,
+        author: "user",
+        upvotes: 0
+      });
+      $scope.body = "";
+    };
+  }]);
