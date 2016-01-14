@@ -64,10 +64,10 @@ app.factory("auth", ["$http", "$window", function($http, $window) {
   auth.isLoggedIn = function() {
     var token = auth.getToken();
 
-    if (token) {
+    if(token) {
       var payload = JSON.parse($window.atob(token.split(".")[1]));
 
-      return payload.exp = Date.now() / 1000;
+      return payload.exp > Date.now() / 1000;
     } else {
       return false;
     }
@@ -158,11 +158,12 @@ app.controller("MainController", [
   // Service injection to the main controller
   "$scope",
   "posts",
+  "auth",
   function($scope, posts){
     $scope.test = "Hello, world!";
 
     $scope.posts = posts.posts;
-
+    // $scope.isLoggedIn = auth.isLoggedIn;
     $scope.addPost = function(){
       // This prevents the user from adding a blank entry
       if(!$scope.title || $scope.title === "") {return;}
@@ -180,14 +181,26 @@ app.controller("MainController", [
 
   }]);
 
+app.controller("SportsController", function($scope, $http){
+  $http.defaults.headers.common["Content-Type"] = "application/json";
+  $http.defaults.headers.common["Accept"] = "application/vnd.stattleship.com; version=1";
+  $http.defaults.headers.common["Authorization"] = "Token token=4319b473e5f86ad51c59c17777dc4a63";
+
+  $http.get("https://www.stattleship.com/basketball/nba/players").success(function(data){
+    $scope.players = data;
+  });
+  
+})
+
 app.controller("PostsController", [
   "$scope",
   "$stateParams",
   "posts",
   "post",
+  "auth",
   function($scope, $stateParams, posts, post){
     $scope.post = post;
-    $scope.isLoggedIn = auth.isLoggedIn;
+    // $scope.isLoggedIn = auth.isLoggedIn;
     $scope.addComment = function(){
       if($scope.body === "") {return;}
         posts.addComment(post._id, {
