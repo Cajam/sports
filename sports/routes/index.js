@@ -8,6 +8,11 @@ router.get('/', function(req, res, next) {
   res.render('index', { title: 'Express' });
 });
 
+// This is how you hide your access tokens in conjunction with the gitignore file.
+var fs = require("fs");
+var env = fs.existsSync("./env.js") ? require("../env.js") : process.env;
+// console.log(env.token);
+var request = require("request");
 var mongoose = require("mongoose");
 var passport = require("passport");
 var Post = mongoose.model("Post");
@@ -48,6 +53,19 @@ router.post('/login', function(req, res, next){
   })(req, res, next);
 });
 
+router.get("/search", function(req, res){
+  request({
+    url: "https://www.stattleship.com/basketball/nba/game_logs?player_id=" + req.query.q,
+    headers: {
+      "Content-Type": "application/json",
+      "Accept": "application/vnd.stattleship.com; version=1",
+      "Authorization": "Token token=" + env.token
+    }
+  }, function(err, response, body){
+    res.send(body)
+  })
+
+});
 
 router.get("/posts", function(req, res, next){
   Post.find(function(err, posts){

@@ -182,14 +182,31 @@ app.controller("MainController", [
   }]);
 
 app.controller("SportsController", function($scope, $http){
-  $http.defaults.headers.common["Content-Type"] = "application/json";
-  $http.defaults.headers.common["Accept"] = "application/vnd.stattleship.com; version=1";
-  $http.defaults.headers.common["Authorization"] = "Token token=4319b473e5f86ad51c59c17777dc4a63";
-
-  $http.get("https://www.stattleship.com/basketball/nba/players").success(function(data){
-    $scope.players = data;
-  });
-  
+  // $scope.league = {
+    // league: "nba"
+  // };
+  $scope.player1 = {
+    league: "nba",
+    firstName: "",
+    lastName: ""
+  }
+  $scope.player2 = {
+    league: "nba",
+    firstName: "",
+    lastName: ""
+  }
+  $scope.search = function() {
+      // Look up how to use params in the get request to do this better in index.js under routes to change things like /basketball/ and what comes before /search?q=
+      $http.get("/search?q=" + $scope.player1.league + "-" + $scope.player1.firstName + "-" + $scope.player1.lastName).success(function(data){
+      // Use $scope.league to pull from an input field for nba/nfl/ then + $scope.firstname then + $scope.lastname input fields
+      $scope.player1 = data;
+      console.log(data);
+    });
+      $http.get("/search?q=" + $scope.player2.league + "-" + $scope.player2.firstName + "-" + $scope.player2.lastName).success(function(dataTwo){
+      $scope.player2 = dataTwo;
+      console.log(dataTwo);
+    });
+  }
 })
 
 app.controller("PostsController", [
